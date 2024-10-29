@@ -1,14 +1,32 @@
 import express from "express";
-import { login, logout, register, updateProfile } from "../controllers/user.controller.js";
+
+
+import { 
+    login, 
+    logout, 
+    register, 
+    updateProfile,
+    getProfile // Added this new controller
+} from "../controllers/user.controller.js";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
-import { singleUpload } from "../middlewares/mutler.js";
- 
+import { singleUpload } from "../middlewares/multer.js"; // Fixed typo in "multer"
+import { validateRegistration, validateLogin, validateProfileUpdate } from "../middlewares/validation.js"; // Added validation middleware
+
 const router = express.Router();
 
-router.route("/register").post(singleUpload,register);
-router.route("/login").post(login);
-router.route("/logout").get(logout);
-router.route("/profile/update").post(isAuthenticated,singleUpload,updateProfile);
+// Registration route
+router.post("/register", validateRegistration, singleUpload, register);
+
+// Login route
+router.post("/login", validateLogin, login);
+
+// Logout route
+router.get("/logout", isAuthenticated, logout);
+
+// Update profile route
+router.put("/profile", isAuthenticated, validateProfileUpdate, singleUpload, updateProfile);
+
+// Get profile route (new)
+router.get("/profile", isAuthenticated, getProfile);
 
 export default router;
-
